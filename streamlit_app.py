@@ -35,11 +35,21 @@ def calculate_concentration(absorbance, extinction_coeff, path_length):
 # --- Streamlit GUI ---
 st.title("Quantum Dot Size & Concentration Calculator")
 
+txt = st.markdown(
+    '''**Description:**  
+    Calculates important properties such as size, extinction coefficient, 
+    and number of particles, of core–only nanocrystals. The calculations are based on 
+    the experimentally determined generalized sizing relationships derived by 
+    Peng et al. :blue-background[*Chem. Mater.* 2003, 15, 14, 2854–2860]. 
+    Take note that the size calculation only assumes core–only nanocrystals and do not include the thickness of shell layers.
+    '''
+)
+
 # Input for NC Type
-nc_type = st.selectbox("Select Nanocrystal Type:", ["CdSe", "CdS", "CdTe"])
+nc_type = st.selectbox("Select Nanocrystal (Core–only) Type:", ["CdSe", "CdS", "CdTe"])
 
 # Input for absorption peak
-wavelength = st.number_input("First Absorption Peak Wavelength (nm):", min_value=300.0, max_value=1000.0, step=0.1)
+wavelength = st.number_input("First Absorption Peak Wavelength (nm):", value=500.0, min_value=300.0, max_value=1000.0, step=0.1)
 
 # Calculate size
 if wavelength:
@@ -60,7 +70,7 @@ if wavelength:
             st.subheader("Optional: Calculate Molar Concentration")
 
             absorbance = st.number_input("Absorbance at first excitonic peak:", min_value=0.0, step=0.01)
-            path_length = st.number_input("Path Length (cm):", min_value=0.0, step=0.01)
+            path_length = st.number_input("Path Length (cm):", value=1.0, min_value=0.0, step=0.01)
 
             if absorbance and path_length:
                 concentration = calculate_concentration(absorbance, extinction_coeff, path_length)
