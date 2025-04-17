@@ -44,25 +44,35 @@ wavelength = st.number_input("First Absorption Peak Wavelength (nm):", min_value
 # Calculate size
 if wavelength:
     diameter = calculate_diameter(nc_type, wavelength)
-    st.write(f"**Calculated Diameter:** {diameter:.2f} nm")
 
-# Extinction coefficient
-if 'diameter' in locals() and diameter is not None:
-    extinction_coeff = calculate_extinction_coefficient(nc_type, diameter)
-    st.write(f"**Extinction Coefficient:** {extinction_coeff:,.2e} M⁻¹cm⁻¹")
+    if diameter is not None:
+        if diameter <= 0 or diameter > 20:  # you can adjust this upper limit based on realistic QD sizes
+            st.warning(f"⚠️ Calculated diameter ({diameter:.2f} nm) is unachievable for {nc_type}. Check your input wavelength.")
+        else:
+            st.write(f"**Calculated Diameter:** {diameter:.2f} nm")
 
-# Optional: Concentration calculation
-st.subheader("Optional: Calculate Molar Concentration")
+        # Calculate extinction coefficient only if size is valid
+        if diameter > 0 and diameter <= 20:
+            extinction_coeff = calculate_extinction_coefficient(nc_type, diameter)
+            st.write(f"**Extinction Coefficient:** {extinction_coeff:,.2e} M⁻¹cm⁻¹")
 
-absorbance = st.number_input("Absorbance at first excitonic peak:", min_value=0.0, step=0.01)
-path_length = st.number_input("Path Length (cm):", value=1.0, min_value=0.0, step=0.01)
+            # Optional: Concentration calculation
+            st.subheader("Optional: Calculate Molar Concentration")
 
-if absorbance and path_length and extinction_coeff:
-    concentration = calculate_concentration(absorbance, extinction_coeff, path_length)
-    if concentration:
-        st.write(f"**Calculated Concentration:** {concentration:.2e} M")
-else:
-    st.write("Fill absorbance and path length to compute concentration.")
+            absorbance = st.number_input("Absorbance at first excitonic peak:", min_value=0.0, step=0.01)
+            path_length = st.number_input("Path Length (cm):", min_value=0.0, step=0.01)
+
+            if absorbance and path_length:
+                concentration = calculate_concentration(absorbance, extinction_coeff, path_length)
+                if concentration:
+                    st.write(f"**Calculated Concentration:** {concentration:.2e} M")
+                else:
+                    st.write("Could not compute concentration. Check your inputs.")
+            else:
+                st.write("Fill absorbance and path length to compute concentration.")
+
+    else:
+        st.error("Failed to calculate diameter. Please check your inputs.")
 
 
 footer_html = """<div style='text-align: center;'>
